@@ -1,0 +1,681 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Happy Birthday Apeksha! 🎉</title>
+  
+  <!-- Google Fonts & Canvas Confetti -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@600;700&family=Montserrat:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&family=Sacramento&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <style>
+    /* ==================== RICH BROWN COLOR PALETTE ==================== */
+    :root {
+      --bg-dark: #2C1810;
+      --bg-card: #3D2317;
+      --accent-warm: #5C3A21;
+      --accent-gold: #D4A373;
+      --accent-cream: #F5E6D3;
+      --text-light: #FAEDCD;
+      --text-muted: #C1A38F;
+      --sidebar-width: 280px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background-color: var(--bg-dark);
+      color: var(--text-light);
+      min-height: 100vh;
+      overflow-x: hidden;
+      display: flex;
+      position: relative;
+    }
+
+    body.locked {
+      overflow: hidden;
+    }
+
+    /* ==================== FLOATING BALLOONS ==================== */
+    .balloon-container {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100vw;
+      height: 100vh;
+      pointer-events: none;
+      z-index: 1;
+      overflow: hidden;
+    }
+
+    .balloon {
+      position: absolute;
+      width: 40px;
+      height: 50px;
+      background: var(--accent-gold);
+      border-radius: 50% 50% 50% 50% / 40% 40% 60% 60%;
+      animation: floatUp 12s linear infinite;
+      opacity: 0.7;
+    }
+
+    .balloon::after {
+      content: "";
+      position: absolute;
+      bottom: -12px;
+      left: 19px;
+      width: 2px;
+      height: 16px;
+      background: rgba(245, 230, 211, 0.5);
+    }
+
+    @keyframes floatUp {
+      0% { transform: translateY(105vh) rotate(0deg); opacity: 0; }
+      20% { opacity: 0.8; }
+      80% { opacity: 0.8; }
+      100% { transform: translateY(-10vh) rotate(360deg); opacity: 0; }
+    }
+
+    /* ==================== 6-DIGIT PASSWORD SCREEN ==================== */
+    .password-overlay {
+      position: fixed;
+      top: 0; left: 0;
+      width: 100vw; height: 100vh;
+      background: radial-gradient(circle, #3D2317 0%, #1A0C07 100%);
+      z-index: 9999;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .password-card {
+      background: rgba(61, 35, 23, 0.85);
+      padding: 50px 40px;
+      border-radius: 28px;
+      text-align: center;
+      border: 2px solid var(--accent-gold);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.6);
+      max-width: 450px;
+      width: 90%;
+      backdrop-filter: blur(10px);
+    }
+
+    .password-card h2 {
+      font-family: 'Cinzel', serif;
+      font-size: 2.2rem;
+      color: var(--accent-gold);
+      margin-bottom: 12px;
+    }
+
+    .password-card p {
+      color: var(--text-muted);
+      font-size: 0.95rem;
+      margin-bottom: 25px;
+      line-height: 1.5;
+    }
+
+    .pin-input {
+      width: 100%;
+      padding: 16px;
+      border: 2px solid var(--accent-gold);
+      border-radius: 14px;
+      background: var(--bg-dark);
+      color: var(--accent-cream);
+      font-family: 'Montserrat', sans-serif;
+      font-size: 1.4rem;
+      letter-spacing: 12px;
+      text-align: center;
+      outline: none;
+      margin-bottom: 20px;
+      transition: all 0.3s ease;
+    }
+
+    .pin-input:focus {
+      box-shadow: 0 0 20px rgba(212, 163, 115, 0.4);
+    }
+
+    .unlock-btn {
+      width: 100%;
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+      color: var(--bg-dark);
+      border: none;
+      padding: 16px;
+      border-radius: 14px;
+      font-size: 1.1rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .unlock-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(212, 163, 115, 0.3);
+    }
+
+    .error-msg {
+      color: #FF6B6B;
+      font-size: 0.85rem;
+      margin-bottom: 15px;
+      display: none;
+    }
+
+    /* ==================== SIDEBAR NAVIGATION ==================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background-color: var(--bg-card);
+      border-right: 1px solid rgba(212, 163, 115, 0.2);
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      padding: 40px 24px;
+      position: fixed;
+      height: 100vh;
+      z-index: 10;
+      box-shadow: 5px 0 20px rgba(0,0,0,0.3);
+    }
+
+    .brand {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .brand h1 {
+      font-family: 'Sacramento', cursive;
+      font-size: 2.8rem;
+      color: var(--accent-gold);
+    }
+
+    .brand p {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      letter-spacing: 3px;
+      text-transform: uppercase;
+      margin-top: 5px;
+    }
+
+    .nav-links {
+      list-style: none;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .nav-btn {
+      background: none;
+      border: none;
+      padding: 14px 18px;
+      text-align: left;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 0.95rem;
+      font-weight: 500;
+      color: var(--text-light);
+      cursor: pointer;
+      border-radius: 14px;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      width: 100%;
+    }
+
+    .nav-btn:hover, .nav-btn.active {
+      background-color: var(--accent-warm);
+      color: var(--accent-gold);
+      transform: translateX(6px);
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    /* Music Player Widget */
+    .music-widget {
+      background: var(--bg-dark);
+      padding: 20px;
+      border-radius: 18px;
+      border: 1px solid rgba(212, 163, 115, 0.3);
+      text-align: center;
+    }
+
+    .music-widget p {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: var(--accent-gold);
+    }
+
+    .music-btn {
+      background-color: var(--accent-gold);
+      color: var(--bg-dark);
+      border: none;
+      padding: 10px 16px;
+      border-radius: 20px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 12px;
+      transition: transform 0.2s ease;
+    }
+
+    .music-btn:hover {
+      transform: scale(1.04);
+    }
+
+    /* ==================== MAIN VIEWPORT ==================== */
+    .main-content {
+      margin-left: var(--sidebar-width);
+      flex: 1;
+      padding: 50px 70px;
+      z-index: 2;
+      position: relative;
+    }
+
+    .page-section {
+      display: none;
+      animation: fadeIn 0.8s ease-in-out forwards;
+      max-width: 950px;
+      margin: 0 auto;
+    }
+
+    .page-section.active {
+      display: block;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .section-title {
+      font-family: 'Cinzel', serif;
+      font-size: 2.8rem;
+      color: var(--accent-gold);
+      margin-bottom: 10px;
+    }
+
+    .section-subtitle {
+      font-size: 1rem;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    /* ==================== LONG PARAGRAPH CARDS ==================== */
+    .content-card {
+      background: var(--bg-card);
+      border-radius: 26px;
+      padding: 45px;
+      border: 1px solid rgba(212, 163, 115, 0.25);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+      margin-bottom: 35px;
+      line-height: 1.9;
+      font-size: 1.05rem;
+      color: var(--accent-cream);
+    }
+
+    .content-card p {
+      margin-bottom: 22px;
+    }
+
+    .content-card p:last-child {
+      margin-bottom: 0;
+    }
+
+    .highlight-quote {
+      font-family: 'Playfair Display', serif;
+      font-style: italic;
+      font-size: 1.4rem;
+      color: var(--accent-gold);
+      border-left: 4px solid var(--accent-gold);
+      padding-left: 20px;
+      margin: 25px 0;
+    }
+
+    /* ==================== INTERACTIVE CAKE WIDGET ==================== */
+    .cake-section {
+      text-align: center;
+      background: var(--bg-card);
+      padding: 50px;
+      border-radius: 28px;
+      border: 1px solid var(--accent-gold);
+      margin-bottom: 40px;
+    }
+
+    .cake {
+      width: 150px;
+      height: 100px;
+      background: #4A2818;
+      border-radius: 10px 10px 0 0;
+      position: relative;
+      margin: 60px auto 30px auto;
+      box-shadow: inset 0 12px 0 #6B3E26, inset 0 24px 0 #4A2818, inset 0 36px 0 #6B3E26;
+    }
+
+    .candle {
+      width: 12px;
+      height: 40px;
+      background: #D4A373;
+      position: absolute;
+      top: -40px;
+      left: 50%;
+      transform: translateX(-50%);
+      border-radius: 4px;
+    }
+
+    .flame {
+      width: 16px;
+      height: 24px;
+      background: #FF9F1C;
+      border-radius: 50% 50% 20% 20%;
+      position: absolute;
+      top: -22px;
+      left: 50%;
+      transform: translateX(-50%);
+      box-shadow: 0 0 15px #FF9F1C;
+      animation: flicker 0.6s infinite alternate;
+      cursor: pointer;
+    }
+
+    .flame.blown {
+      display: none;
+    }
+
+    @keyframes flicker {
+      0% { transform: translateX(-50%) scale(1); }
+      100% { transform: translateX(-50%) scale(1.15); }
+    }
+
+    .blow-btn {
+      background: linear-gradient(135deg, var(--accent-gold), var(--accent-warm));
+      color: var(--bg-dark);
+      border: none;
+      padding: 14px 32px;
+      font-size: 1rem;
+      font-weight: 700;
+      border-radius: 30px;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+      transition: all 0.3s ease;
+    }
+
+    .blow-btn:hover {
+      transform: scale(1.05);
+    }
+  </style>
+</head>
+<body class="locked">
+
+  <!-- Floating Balloons Background -->
+  <div class="balloon-container" id="balloon-container"></div>
+
+  <!-- Audio Element -->
+  <audio id="bg-music" src="song.mp3" loop></audio>
+
+  <!-- ================= 6-DIGIT PASSWORD SCREEN ================= -->
+  <div class="password-overlay" id="password-screen">
+    <div class="password-card">
+      <h2>Welcome Apeksha</h2>
+      <p>Enter your 6-digit secret birthday passcode to unlock your experience.</p>
+      
+      <input type="password" id="pin-input" class="pin-input" maxlength="6" placeholder="******" onkeydown="if(event.key === 'Enter') checkPin()">
+      <p id="error-msg" class="error-msg">Incorrect Passcode! Try 191024</p>
+      
+      <button onclick="checkPin()" class="unlock-btn">Unlock Surprise ✨</button>
+    </div>
+  </div>
+
+  <!-- Sidebar Navigation -->
+  <aside class="sidebar">
+    <div>
+      <div class="brand">
+        <h1>Apeksha Pandey</h1>
+        <p>October 19th Special</p>
+      </div>
+
+      <ul class="nav-links">
+        <li>
+          <button class="nav-btn active" onclick="switchPage('home', this)">
+            <span>🎉</span> Birthday Wishes
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" onclick="switchPage('letter', this)">
+            <span>📜</span> Friendship Letter
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" onclick="switchPage('doctor', this)">
+            <span>🩺</span> The Future Doctor
+          </button>
+        </li>
+        <li>
+          <button class="nav-btn" onclick="switchPage('future', this)">
+            <span>🌟</span> Best Of Luck
+          </button>
+        </li>
+      </ul>
+    </div>
+
+    <!-- Music Control Widget -->
+    <div class="music-widget">
+      <p>Your Birthday Soundtrack</p>
+      <button class="music-btn" onclick="toggleAudio()">
+        <span id="play-icon">❚❚</span> <span id="play-text">Playing Song</span>
+      </button>
+    </div>
+  </aside>
+
+  <!-- Main Viewport -->
+  <main class="main-content">
+
+    <!-- PAGE 1: BIRTHDAY WISHES & CAKE CEREMONY -->
+    <section id="home" class="page-section active">
+      <h2 class="section-title">Happy Belated Birthday, Apeksha!</h2>
+      <p class="section-subtitle">Celebrating October 19th — A special day for an extraordinary person.</p>
+
+      <!-- Cake Cutting Interactive Widget -->
+      <div class="cake-section">
+        <h3 style="color: var(--accent-gold); font-family: 'Cinzel', serif; margin-bottom: 10px;">Make A Wish!</h3>
+        <p style="color: var(--text-muted); font-size: 0.9rem; margin-bottom: 20px;">Click the button below to blow out the candle and cut the cake!</p>
+        
+        <div class="cake">
+          <div class="candle">
+            <div class="flame" id="flame"></div>
+          </div>
+        </div>
+
+        <button class="blow-btn" onclick="blowCandle()">Blow Candle & Cut Cake 🎂</button>
+      </div>
+
+      <div class="content-card">
+        <p>
+          Dearest Apeksha, even though October 19th just passed yesterday, I wanted to make sure that your birthday month continues to feel magical. Birthdays aren't just about celebrating a single day on the calendar; they are about celebrating the beautiful journey of a person who brings genuine kindness, grace, and warmth into the lives of everyone around them.
+        </p>
+        
+        <div class="highlight-quote">
+          "Some people make the world brighter just by being in it. You are undeniably one of those people."
+        </div>
+
+        <p>
+          I hope your yesterday was filled with endless laughter, sweet moments, and all the love you truly deserve. As you step into this new chapter of your life, I wish you a year ahead filled with peace, absolute clarity, grand achievements, and unforgettable memories. May every single day bring you closer to all the high dreams you hold in your heart.
+        </p>
+      </div>
+    </section>
+
+    <!-- PAGE 2: FRIENDSHIP LETTER -->
+    <section id="letter" class="page-section">
+      <h2 class="section-title">A Letter To A Wonderful Friend</h2>
+      <p class="section-subtitle">Reflecting on 5 years of shared hallways and reconnecting after 12th grade.</p>
+
+      <div class="content-card">
+        <p>
+          Dear Apeksha,
+        </p>
+        <p>
+          Looking back, it’s honestly crazy how life works. We shared the exact same batch and lived in the same hostel for five whole years—straight from 6th grade all the way through 10th grade. We walked through those same hallways, sat through the same classes, and experienced the exact same school routine every day. Back then, we didn't talk deeply or know each other all that well, but life always has a unique way of bringing good people back into your circle.
+        </p>
+        <p>
+          Now, after passing out of 12th grade, getting back in touch with you and having these daily conversations has been such a wonderful experience. Getting to know the person behind the quiet, decent presence I saw in school has been genuinely uplifting. You are, without a doubt, a 100% genuine, extremely nice, and deeply respectful girl. In a world where sincere people are hard to come by, your decency stands out effortless.
+        </p>
+
+        <div class="highlight-quote">
+          "I might not have known you thoroughly back in school, but whatever I know of you today proves that you are one of the most decent, grounded, and pure-hearted souls."
+        </div>
+
+        <p>
+          I want you to know that I truly value this reconnected bond. I sincerely hope that regardless of where life takes us, where our studies lead us, or how busy the future gets, we remain genuine friends for a lifetime. Having a friend like you is something to treasure.
+        </p>
+      </div>
+    </section>
+
+    <!-- PAGE 3: THE FUTURE DOCTOR -->
+    <section id="doctor" class="page-section">
+      <h2 class="section-title">The Future Dr. Apeksha Pandey 🩺</h2>
+      <p class="section-subtitle">Honoring your noble ambition and dedicated spirit.</p>
+
+      <div class="content-card">
+        <p>
+          Apeksha, when I learned about your ambition to become a doctor, my respect for you grew even higher. Choosing the medical path is not just choosing a career or a degree—it is choosing a noble calling of selfless service, resilience, and lifelong dedication. It takes immense courage and an empathetic heart to dedicate oneself to healing others.
+        </p>
+        
+        <div class="highlight-quote">
+          "To cure sometimes, to relieve often, to comfort always. You have the heart and mind to be an extraordinary healer."
+        </div>
+
+        <p>
+          The road to becoming a doctor requires endless hours of studying, discipline, and perseverance, but knowing your focused, calm, and dedicated nature, I have zero doubt in my mind that you will achieve this dream. I can already see it so clearly in the future: you wearing that white coat, carrying that stethoscope with pride, and wearing the title of <strong>Dr. Apeksha Pandey</strong>.
+        </p>
+        <p>
+          Whenever the preparation feels heavy or tiring, always remind yourself of why you started. You have the intellect, the grace, and the compassion needed to make a profound difference in human lives. I am cheering for your success every step of the way!
+        </p>
+      </div>
+    </section>
+
+    <!-- PAGE 4: BEST OF LUCK & FUTURE WISHES -->
+    <section id="future" class="page-section">
+      <h2 class="section-title">Wishing You Future Greatness</h2>
+      <p class="section-subtitle">May your upcoming years be as bright and golden as your potential.</p>
+
+      <div class="content-card">
+        <p>
+          As you navigate this pivotal phase after 12th grade, remember that the world is wide open with possibilities for someone with your mindset and dedication. I wish you absolute success in every exam, every interview, and every milestone you set out to conquer.
+        </p>
+        <p>
+          May you find strength in moments of difficulty, joy in moments of struggle, and immense pride in every progress you make. Never let self-doubt enter your mind because you have everything within you to achieve greatness.
+        </p>
+
+        <div class="highlight-quote">
+          "May your future be filled with golden opportunities, health, and everlasting happiness."
+        </div>
+
+        <p>
+          Keep shining, keep working towards your doctor dream, stay the sweet and decent person you are, and always remember that you have friends who believe in you completely. Happy Birthday once again, Apeksha! Have a remarkable year ahead!
+        </p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- JavaScript Engine -->
+  <script>
+    // ================= 6-DIGIT PIN LOGIC =================
+    const correctPin = "191024"; // October 19th Code
+
+    function checkPin() {
+      const pinInput = document.getElementById('pin-input');
+      const errorMsg = document.getElementById('error-msg');
+      const passwordScreen = document.getElementById('password-screen');
+
+      if (pinInput.value.trim() === correctPin) {
+        passwordScreen.style.opacity = '0';
+        setTimeout(() => {
+          passwordScreen.style.display = 'none';
+          document.body.classList.remove('locked');
+          startAudio();
+          triggerConfetti();
+        }, 800);
+      } else {
+        errorMsg.style.display = 'block';
+        pinInput.style.borderColor = '#FF6B6B';
+      }
+    }
+
+    // ================= SPA PAGE NAVIGATION =================
+    function switchPage(pageId, btn) {
+      const sections = document.querySelectorAll('.page-section');
+      sections.forEach(sec => sec.classList.remove('active'));
+
+      const navBtns = document.querySelectorAll('.nav-btn');
+      navBtns.forEach(b => b.classList.remove('active'));
+
+      document.getElementById(pageId).classList.add('active');
+      btn.classList.add('active');
+    }
+
+    // ================= AUDIO CONTROL =================
+    const audio = document.getElementById('bg-music');
+    let isPlaying = false;
+
+    function startAudio() {
+      audio.play().then(() => {
+        isPlaying = true;
+      }).catch(err => console.log("Autoplay blocked by browser. Click Play manually."));
+    }
+
+    function toggleAudio() {
+      const playIcon = document.getElementById('play-icon');
+      const playText = document.getElementById('play-text');
+
+      if (isPlaying) {
+        audio.pause();
+        playIcon.textContent = '▶';
+        playText.textContent = 'Play Song';
+        isPlaying = false;
+      } else {
+        audio.play();
+        playIcon.textContent = '❚❚';
+        playText.textContent = 'Playing Song';
+        isPlaying = true;
+      }
+    }
+
+    // ================= CAKE CEREMONY & CONFETTI =================
+    function blowCandle() {
+      document.getElementById('flame').classList.add('blown');
+      triggerConfetti();
+      alert("🎉 Wish made, candle blown, and cake cut! Happy Birthday Apeksha!");
+    }
+
+    function triggerConfetti() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 }
+      });
+    }
+
+    // ================= FLOATING BALLOONS GENERATOR =================
+    function createBalloons() {
+      const container = document.getElementById('balloon-container');
+      for (let i = 0; i < 15; i++) {
+        const balloon = document.createElement('div');
+        balloon.classList.add('balloon');
+        balloon.style.left = Math.random() * 100 + 'vw';
+        balloon.style.animationDuration = (Math.random() * 6 + 8) + 's';
+        balloon.style.animationDelay = (Math.random() * 5) + 's';
+        container.appendChild(balloon);
+      }
+    }
+    createBalloons();
+  </script>
+</body>
+</html>
